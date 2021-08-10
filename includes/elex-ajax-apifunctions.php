@@ -77,7 +77,7 @@ function elex_bep_update_product_callback() {
 	$sku_text                 = sanitize_text_field( $_POST['sku_text'] );
 	$sku_replace_text         = sanitize_text_field( $_POST['sku_replace_text'] );
 	$regex_sku_replace_text   = sanitize_text_field( $_POST['regex_sku_replace_text'] );
-	
+
 	#sale price options
 	$sale_select          = sanitize_text_field( $_POST['sale_select'] );
 	$sale_text                = sanitize_text_field( $_POST['sale_text'] );
@@ -113,7 +113,7 @@ function elex_bep_update_product_callback() {
 	$width_text               = sanitize_text_field( $_POST['width_text'] );
 	$height_text              = sanitize_text_field( $_POST['height_text'] );
 	$weight_text              = sanitize_text_field( $_POST['weight_text'] );
-	
+
 
 	$hide_price               = sanitize_text_field( $_POST['hide_price'] );
 	$hide_price_role          = ( $_POST['hide_price_role'] != '' ) ? sanitize_text_field( $_POST['hide_price_role'] ) : '';
@@ -184,7 +184,7 @@ function elex_bep_update_product_callback() {
 			$parent_id = ( WC()->version < '2.7.0' ) ? $temp->parent->id : $temp->get_parent_id();
 			$parent    = wc_get_product( $parent_id );
 		}
-		
+
 		$temp_type  = ( WC()->version < '2.7.0' ) ? $temp->product_type : $temp->get_type();
 		$temp_title = ( WC()->version < '2.7.0' ) ? $temp->post->post_title : $temp->get_title();
 		if ( $temp_type == 'simple' || $temp_type == 'variation' || $temp_type == 'variable' ) {
@@ -885,7 +885,7 @@ function elex_bep_update_product_callback() {
 		if ( sanitize_text_field( $_POST['category_update_option'] ) != 'cat_none' && isset( $_POST['categories_to_update'] ) ) {
 			$existing_cat = wp_get_object_terms( $pid, 'product_cat' );
 			// undo data
-			
+
 			if ( sanitize_text_field( $_POST['category_update_option'] ) == 'cat_add' ) {
 				$temparr = array();
 				foreach ( $existing_cat as $cat_key => $cat_val ) {
@@ -908,13 +908,13 @@ function elex_bep_update_product_callback() {
 			elseif ( sanitize_text_field( $_POST['category_update_option'] ) == 'cat_remove' ) {
 				$temparr_remove = array();
 				foreach ( $existing_cat as $cat_rem_key => $cat_rem_val ) {
-					
+
 					if ( ! in_array( (int) $cat_rem_val->term_id, $_POST['categories_to_update'] ) ) {
 						array_push( $temparr_remove, (int) $cat_rem_val->term_id );
 					}
 				}
 				wp_set_object_terms( $pid, $temparr_remove, 'product_cat' );
-			}	
+			}
 		}
 		$count_iteration = $count_iteration + 1;
 	}
@@ -1023,12 +1023,12 @@ function elex_bep_filter_products( $data = '' ) {
 	} else {
 		$data_to_filter = $data;
 	}
-	$sql = "SELECT 
-                    DISTINCT ID 
-                FROM {$prefix}posts 
-                    LEFT JOIN {$prefix}term_relationships on {$prefix}term_relationships.object_id={$prefix}posts.ID 
-                    LEFT JOIN {$prefix}term_taxonomy on {$prefix}term_taxonomy.term_taxonomy_id  = {$prefix}term_relationships.term_taxonomy_id 
-                    LEFT JOIN {$prefix}terms on {$prefix}terms.term_id  ={$prefix}term_taxonomy.term_id 
+	$sql = "SELECT
+                    DISTINCT ID
+                FROM {$prefix}posts
+                    LEFT JOIN {$prefix}term_relationships on {$prefix}term_relationships.object_id={$prefix}posts.ID
+                    LEFT JOIN {$prefix}term_taxonomy on {$prefix}term_taxonomy.term_taxonomy_id  = {$prefix}term_relationships.term_taxonomy_id
+                    LEFT JOIN {$prefix}terms on {$prefix}terms.term_id  ={$prefix}term_taxonomy.term_id
                     LEFT JOIN {$prefix}postmeta on {$prefix}postmeta.post_id  ={$prefix}posts.ID
                 WHERE  post_type = 'product' AND post_status='publish'";
 
@@ -1073,10 +1073,10 @@ function elex_bep_filter_products( $data = '' ) {
 		$attribute_count = count( $data_to_filter['attribute_value_and_filter']);
 		$attribute_value_and = stripslashes( $attribute_value_and );
 		if ( !empty( $attribute_value_and ) ){
-			$attr_condition = "  {$prefix}posts.ID IN ( SELECT ID FROM {$prefix}posts 
-			LEFT JOIN {$prefix}term_relationships on {$prefix}term_relationships.object_id={$prefix}posts.ID 
-			LEFT JOIN {$prefix}term_taxonomy on {$prefix}term_taxonomy.term_taxonomy_id  = {$prefix}term_relationships.term_taxonomy_id 
-			LEFT JOIN {$prefix}terms on {$prefix}terms.term_id  ={$prefix}term_taxonomy.term_id 
+			$attr_condition = "  {$prefix}posts.ID IN ( SELECT ID FROM {$prefix}posts
+			LEFT JOIN {$prefix}term_relationships on {$prefix}term_relationships.object_id={$prefix}posts.ID
+			LEFT JOIN {$prefix}term_taxonomy on {$prefix}term_taxonomy.term_taxonomy_id  = {$prefix}term_relationships.term_taxonomy_id
+			LEFT JOIN {$prefix}terms on {$prefix}terms.term_id  ={$prefix}term_taxonomy.term_id
 			WHERE  post_type = 'product' AND post_status='publish'
 			AND CONCAT(taxonomy,':',slug)  in ({$attribute_value_and}) GROUP BY {$prefix}posts.ID HAVING COUNT( {$prefix}posts.ID) ={$attribute_count}) ";
 		}
@@ -1122,8 +1122,11 @@ function elex_bep_filter_products( $data = '' ) {
 
 	$ids_simple = array();
 	if ( empty( $data_to_filter['type'] ) || in_array( 'simple', $data_to_filter['type'] ) ) {
-		$product_type_condition = " taxonomy='product_type'  AND slug  in ('simple') ";
-
+		if(empty( $data_to_filter['type'])){
+			$product_type_condition = " taxonomy='product_type' ";
+		}else{
+			$product_type_condition = " taxonomy='product_type'  AND slug  in ('simple') ";
+		}
 		if ( ! empty( $attr_condition ) && ! empty( $category_condition ) ) {
 			$main_query = $sql . ' AND ' . $attr_condition . ' AND ID IN (' . $sql . ' AND ' . $category_condition . ' AND ID IN (' . $sql . ' AND ' . $product_type_condition . '))';
 		} elseif ( ! empty( $attr_condition ) && empty( $category_condition ) ) {
