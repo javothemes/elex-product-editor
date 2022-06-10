@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: ELEX WooCommerce Bulk Edit Products, Prices & Attributes (Basic)
+Plugin Name: JV ELEX Bulk Editor
 Plugin URI: https://elextensions.com/plugin/elex-bulk-edit-products-prices-attributes-for-woocommerce-free-version/
 Description: Bulk Edit Products, Prices & Attributes for Woocommerce allows you to edit products prices and attributes as Bulk.
 Version: 1.1.8
